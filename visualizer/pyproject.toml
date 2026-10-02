@@ -1,0 +1,21 @@
+[project]
+name = "visualizer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "lbonsenor", email = "lbonsenor@itba.edu.ar" },
+    { name = "feli", email = "feli@itba.edu.ar" },
+    { name = "jolivamorroni", email = "jolivamorroni@itba.edu.ar" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "matplotlib>=3.11.2",
+]
+
+[project.scripts]
+visualizer = "visualizer:main"
+
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13.0"]
+build-backend = "uv_build"
