@@ -54,8 +54,43 @@ public class OscillatorMain extends BaseConfig {
 //            runVerletOriginalOscillatorForDt(dt);
 //        }
         //runVelocityVerletOscillatorForDt(dts.getFirst());
-        runBeemanOscillatorForDt(dts.getFirst());
+        //runBeemanOscillatorForDt(dts.getFirst());
+        runEulerPredictorCorrectorOscillatorForDt(dts.getFirst());
         return 0;
+    }
+
+    private void runEulerPredictorCorrectorOscillatorForDt(double dt) {
+        double massInverse = 1.0 / mass;
+        double rt = r0;
+        double vt = v0;
+        // Aceleración actual (en el paso t)
+        double at = (-k * rt - gamma * vt) * massInverse;
+
+        double aPlusT;
+        double vPredict;
+        double rPredict;
+
+        double totalT = 0;
+        int counter = 0;
+        while (totalT < tf)
+        {
+
+            vPredict = vt + at * dt;
+            rPredict = rt + vt * dt;
+            aPlusT = (-k * rPredict - gamma * vPredict) * massInverse;
+            vt = vt + aPlusT * dt;
+            rt = rt + vt * dt;
+            at = (-k * rt - gamma * vt) * massInverse;
+
+            totalT += dt;
+            counter++;
+            if(counter == 25){
+                System.out.println("totalT : " + totalT + " rt : " + rt + " vt : " + vt);
+                System.out.println("analytical : " + getAnalyticalOscillatorPosition(totalT)+ " error : " + Math.abs(getAnalyticalOscillatorPosition(totalT) - rt));
+                System.out.println();
+                counter = 0;
+            }
+        }
     }
 
 
