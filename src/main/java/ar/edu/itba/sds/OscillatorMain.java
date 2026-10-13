@@ -53,9 +53,59 @@ public class OscillatorMain extends BaseConfig {
 //        for (double dt : dts) {
 //            runVerletOriginalOscillatorForDt(dt);
 //        }
-        runVelocityVerletOscillatorForDt(dts.getFirst());
+        //runVelocityVerletOscillatorForDt(dts.getFirst());
+        runBeemanOscillatorForDt(dts.getFirst());
         return 0;
     }
+
+
+    private void runBeemanOscillatorForDt(double dt) {
+        double massInverse = 1.0 / mass;
+        double rt = r0;
+        double vt = v0;
+        double at = (-k * rt - gamma * vt) * massInverse;
+
+        double rMinusT = rt - vt * dt + 0.5 * at * dt * dt;
+        double vMinusT = vt - at * dt;
+        double aMinusT = (-k * rMinusT - gamma * vMinusT) * massInverse;
+
+        double rPlusT, vPred, aPlusT, vPlusT, aExactPlusT;
+
+        double totalT = 0;
+        int counter = 0;
+        while (totalT < tf)
+        {
+
+            rPlusT = rt + vt * dt + (2.0/3.0) * at * dt * dt - (1.0/6.0) * aMinusT * dt * dt;
+
+
+            vPred = vt + (3.0/2.0) * at * dt - (1.0/2.0) * aMinusT * dt;
+
+
+            aPlusT = (-k * rPlusT - gamma * vPred) * massInverse;
+
+
+            vPlusT = vt + (1.0/3.0) * aPlusT * dt + (5.0/6.0) * at * dt - (1.0/6.0) * aMinusT * dt;
+
+            aExactPlusT = (-k * rPlusT - gamma * vPlusT) * massInverse;
+            aMinusT = at;
+            at = aExactPlusT;
+            rt = rPlusT;
+            vt = vPlusT;
+
+
+
+            counter++;
+            totalT += dt;
+            if(counter == 25){
+                System.out.println("totalT : " + totalT + "rt : " + rt + "vt : " + vt);
+                System.out.println("Analytical : " + getAnalyticalOscillatorPosition(totalT)+ " Error : " + Math.abs(getAnalyticalOscillatorPosition(totalT) - rt));
+                System.out.println();
+                counter = 0;
+            }
+        }
+    }
+
 
     private void runVelocityVerletOscillatorForDt(double dt) {
         double massInverse = 1/mass;
