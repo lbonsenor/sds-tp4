@@ -5,6 +5,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.DataOutput;
 import java.io.File;
 import java.util.List;
 
@@ -45,8 +46,29 @@ public class OscillatorMain extends BaseConfig {
         return 0;
     }
 
+    //Currently only original verlet algorithm
     private void runOscillatorForDt(double dt) {
-        // TODO: Ejecutar Verlet Original, Velocity Verlet, Beeman y Euler Predictor-Corrector
+        double massInverse = 1/mass;
+        double f0 = -k * r0 - gamma * v0;
+        double rMinusT = r0 - v0*dt + (f0/(2 * mass)) * dt * dt;
+        double rt = r0;
+        double rPlusT;
+
+        double totalT = 0;
+        int counter = 0;
+        while (totalT < tf)
+        {
+            counter++;
+            rPlusT = ((2 - k * dt * dt * massInverse) * rt - (1 - gamma * dt * 0.5 * massInverse) * rMinusT) / (1 + gamma * dt * 0.5 * massInverse);
+            rMinusT = rt;
+            rt = rPlusT;
+            totalT += dt;
+
+            if(counter == 25){
+                System.out.println("totalT : " + totalT + "rt : " + rt);
+                counter = 0;
+            }
+        }
     }
 
     public static void main(String[] args) {
