@@ -1,11 +1,14 @@
 package ar.edu.itba.sds;
 
+import ar.edu.itba.sds.Utils.CsvExporter;
 import ar.edu.itba.sds.config.BaseConfig;
+import ar.edu.itba.sds.telemetry.OscilatorTelemetry;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 @Command(
@@ -50,20 +53,38 @@ public class OscillatorMain extends BaseConfig {
         System.out.printf("Condiciones: m=%.1f kg | k=%.1f N/m | gamma=%.1f kg/s | tf=%.1f s%n", mass, k, gamma, tf);
         System.out.println("Evaluando dts: " + dts);
 
-//        for (double dt : dts) {
-//            runVerletOriginalOscillatorForDt(dt);
-//        }
-        //runVelocityVerletOscillatorForDt(dts.getFirst());
-        //runBeemanOscillatorForDt(dts.getFirst());
-        runEulerPredictorCorrectorOscillatorForDt(dts.getFirst());
+        int counter=0;
+        for (double dt : dts) {
+            runVerletOriginalOscillatorForDt(dt);
+            runVelocityVerletOscillatorForDt(dt);
+            runBeemanOscillatorForDt(dt);
+            runEulerPredictorCorrectorOscillatorForDt(dt);
+            runAnalyticalSolutionForOscillatorForDt(dt);
+            counter++;
+        }
         return 0;
+    }
+    private void runAnalyticalSolutionForOscillatorForDt(double dt) {
+        double totalT = 0;
+        double rt = r0;
+        List<OscilatorTelemetry> telemetryList = new ArrayList<>();
+        telemetryList.add(new OscilatorTelemetry(0.0, rt));
+        while (totalT < tf)
+        {
+            totalT += dt;
+            rt = getAnalyticalOscillatorPosition(totalT);
+            telemetryList.add(new OscilatorTelemetry(totalT, rt));
+        }
+        String fileName = "analytical_solution_dt_" + dt + ".csv";
+        File targetFile = new File(outputDir, fileName);
+
+        CsvExporter.exportTelemetry(telemetryList, targetFile, false);
     }
 
     private void runEulerPredictorCorrectorOscillatorForDt(double dt) {
         double massInverse = 1.0 / mass;
         double rt = r0;
         double vt = v0;
-        // Aceleración actual (en el paso t)
         double at = (-k * rt - gamma * vt) * massInverse;
 
         double aPlusT;
@@ -71,7 +92,11 @@ public class OscillatorMain extends BaseConfig {
         double rPredict;
 
         double totalT = 0;
-        int counter = 0;
+
+
+        List<OscilatorTelemetry> telemetryList = new ArrayList<>();
+        telemetryList.add(new OscilatorTelemetry(0.0, rt));
+
         while (totalT < tf)
         {
 
@@ -83,14 +108,12 @@ public class OscillatorMain extends BaseConfig {
             at = (-k * rt - gamma * vt) * massInverse;
 
             totalT += dt;
-            counter++;
-            if(counter == 25){
-                System.out.println("totalT : " + totalT + " rt : " + rt + " vt : " + vt);
-                System.out.println("analytical : " + getAnalyticalOscillatorPosition(totalT)+ " error : " + Math.abs(getAnalyticalOscillatorPosition(totalT) - rt));
-                System.out.println();
-                counter = 0;
-            }
+            telemetryList.add(new OscilatorTelemetry(totalT, rt));
         }
+        String fileName = "euler_pc_dt_" + dt + ".csv";
+        File targetFile = new File(outputDir, fileName);
+
+        CsvExporter.exportTelemetry(telemetryList, targetFile, false);
     }
 
 
@@ -107,7 +130,9 @@ public class OscillatorMain extends BaseConfig {
         double rPlusT, vPred, aPlusT, vPlusT, aExactPlusT;
 
         double totalT = 0;
-        int counter = 0;
+
+        List<OscilatorTelemetry> telemetryList = new ArrayList<>();
+        telemetryList.add(new OscilatorTelemetry(0.0, rt));
         while (totalT < tf)
         {
 
@@ -130,15 +155,14 @@ public class OscillatorMain extends BaseConfig {
 
 
 
-            counter++;
+
             totalT += dt;
-            if(counter == 25){
-                System.out.println("totalT : " + totalT + "rt : " + rt + "vt : " + vt);
-                System.out.println("Analytical : " + getAnalyticalOscillatorPosition(totalT)+ " Error : " + Math.abs(getAnalyticalOscillatorPosition(totalT) - rt));
-                System.out.println();
-                counter = 0;
-            }
+            telemetryList.add(new OscilatorTelemetry(totalT, rt));
         }
+        String fileName = "beeman_dt_" + dt + ".csv";
+        File targetFile = new File(outputDir, fileName);
+
+        CsvExporter.exportTelemetry(telemetryList, targetFile, false);
     }
 
 
@@ -153,10 +177,12 @@ public class OscillatorMain extends BaseConfig {
         double vPlusHalfT;
         double vPlusTInverseDenominator = 1 / (1.0 + gamma * massInverse * 0.5 * dt);
         double totalT = 0;
-        int counter = 0;
+
+        List<OscilatorTelemetry> telemetryList = new ArrayList<>();
+        telemetryList.add(new OscilatorTelemetry(0.0, rt));
         while (totalT < tf)
         {
-            counter++;
+
 
             vPlusHalfT = vt + (ft * massInverse) * 0.5 * dt;
             rPlusT = rt + vPlusHalfT * dt;
@@ -166,21 +192,21 @@ public class OscillatorMain extends BaseConfig {
             vt = vPlusT;
             ft = fPlusT;
 
+
             totalT += dt;
-            if(counter == 25){
-                System.out.println("totalT : " + totalT + "rt : " + rt + "vt : " + vt);
-                System.out.println("Analytical : " + getAnalyticalOscillatorPosition(totalT)+ " Error : " + Math.abs(getAnalyticalOscillatorPosition(totalT) - rt));
-                System.out.println();
-                counter = 0;
-            }
+            telemetryList.add(new OscilatorTelemetry(totalT, rt));
         }
+        String fileName = "velocity_verlet_dt_" + dt + ".csv";
+        File targetFile = new File(outputDir, fileName);
+
+        CsvExporter.exportTelemetry(telemetryList, targetFile, false);
     }
 
     private double getAnalyticalOscillatorPosition(double t) {
         return constA * Math.exp(-gammaOver2m * t) * Math.cos(omega * t);
     }
 
-    //Currently only original verlet algorithm
+
     private void runVerletOriginalOscillatorForDt(double dt) {
         double massInverse = 1/mass;
         double f0 = -k * r0 - gamma * v0;
@@ -189,22 +215,22 @@ public class OscillatorMain extends BaseConfig {
         double rPlusT;
 
         double totalT = 0;
-        int counter = 0;
+
+        List<OscilatorTelemetry> telemetryList = new ArrayList<>();
+        telemetryList.add(new OscilatorTelemetry(0.0, rt));
         while (totalT < tf)
         {
-            counter++;
+
             rPlusT = ((2 - k * dt * dt * massInverse) * rt - (1 - gamma * dt * 0.5 * massInverse) * rMinusT) / (1 + gamma * dt * 0.5 * massInverse);
             rMinusT = rt;
             rt = rPlusT;
             totalT += dt;
-
-            if(counter == 25){
-                System.out.println("totalT : " + totalT + "rt : " + rt);
-                System.out.println("Analytical : " + getAnalyticalOscillatorPosition(totalT)+ " Error : " + Math.abs(getAnalyticalOscillatorPosition(totalT) - rt));
-                System.out.println();
-                counter = 0;
-            }
+            telemetryList.add(new OscilatorTelemetry(totalT, rt));
         }
+        String fileName = "verlet_original_" + dt + ".csv";
+        File targetFile = new File(outputDir, fileName);
+
+        CsvExporter.exportTelemetry(telemetryList, targetFile, false);
     }
 
     public static void main(String[] args) {
