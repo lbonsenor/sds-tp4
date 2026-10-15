@@ -15,6 +15,7 @@ public class BillarSimulation {
     public static final double V0 = 1.0;               // v0 = 1 m/s
     public static final double K = 1e4;                // k = 10^4 N/m
 
+
     private final int nPart;
     private final double xo;
     private final double dt;
@@ -93,6 +94,46 @@ public class BillarSimulation {
 
             particles.add(new Particle(x,y, vx, vy,M,R_PART));
         }
+    }
+
+    private double[] calculateEnergies() {
+        double ek = 0.0;
+        double ep = 0.0;
+        for (Particle p : particles) {
+            ek += 0.5 * M * (p.getVx() * p.getVx() + p.getVy() * p.getVy());
+        }
+        for (int i = 0; i < nPart; i++) {
+            Particle p1 = particles.get(i);
+            double xi = p1.getX();
+            double yi = p1.getY();
+
+            for (int j = i + 1; j < nPart; j++) {
+                Particle p2 = particles.get(j);
+                double dist = Math.hypot(p2.getX() - xi, p2.getY() - yi);
+                double xi_ij = (2 * R_PART) - dist;
+                if (xi_ij > 0) {
+                    ep += 0.5 * K * xi_ij * xi_ij;
+                }
+            }
+
+            if (withObstacles) {
+                for (double[] obs : obstacles) {
+                    double dist = Math.hypot(obs[0] - xi, obs[1] - yi);
+                    double xiObs = (2 * R_PART) - dist;
+                    if (xiObs > 0) {
+                        ep += 0.5 * K * xiObs * xiObs;
+                    }
+                }
+            }
+
+            double distCentro = Math.hypot(xi, yi);
+            double xiW = distCentro + R_PART - R_DOMAIN;
+            if (xiW > 0) {
+                ep += 0.5 * K * xiW * xiW;
+            }
+        }
+
+        return new double[]{ek, ep};
     }
 
     private double[][] calculateForce(double[][] pos) {
@@ -182,12 +223,20 @@ public class BillarSimulation {
         }
         return pos;
     }
+    public double execute(double dtOut, String archivoSalida){
+        return execute(dtOut, archivoSalida, null);
+    }
 
-    public double execute(double dtOut, String archivoSalida) {
+    public double execute(double dtOut, String archivoSalida, String archivoEnergia) {
         BufferedWriter writer = null;
+        BufferedWriter energy = null;
         try {
             if (archivoSalida != null) {
                 writer = new BufferedWriter(new FileWriter(archivoSalida));
+            }
+            if(archivoEnergia != null) {
+                energy = new BufferedWriter(new FileWriter(archivoEnergia));
+                energy.write("t\tEk\tEp\tEtot\n");
             }
 
             double t = 0.0;
@@ -223,6 +272,14 @@ public class BillarSimulation {
                         int color = p.isUsed() ? 1 : 0; // 0 = Fresca (Azul), 1 = Usada (Roja)
                         writer.write(String.format("%d %.6f %.6f %.6f %.6f %d\n",
                                 p.getId(), p.getX(), p.getY(), p.getVx(), p.getVy(), color));
+                    }
+
+                    if(energy != null) {
+                        double[] energies = calculateEnergies();
+                        double ek = energies[0];
+                        double ep = energies[1];
+                        double etot = ek + ep;
+                        energy.write(String.format("%.6f,%.6f,%.6f,%.6f\n", t, ek, ep, etot));
                     }
                 }
 
@@ -267,6 +324,13 @@ public class BillarSimulation {
                     e.printStackTrace();
                 }
             }
+            if(energy != null) {
+                try{
+                    energy.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -280,7 +344,8 @@ public class BillarSimulation {
         System.out.printf("Iniciando simulación en Java: N=%d, xo=%.3fm, dt=%.1ee s...\n", N, xo, dt);
 
         BillarSimulation sim = new BillarSimulation(N, xo, dt, tMax, true);
-        double tiempoEjecucion = sim.execute(0.05, "output_sistema2_java.txt");
+        //si no le pasas archivo energia no hace el calculo
+        double tiempoEjecucion = sim.execute(0.05, "output_sistema2_java.txt", "output_sistema2_energia_java.txt");
 
         System.out.printf("Simulación finalizada en %.2f segundos.\n", tiempoEjecucion);
         System.out.println("Archivo generado: 'output_sistema2_java.txt'");
