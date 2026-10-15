@@ -2,14 +2,20 @@ package ar.edu.itba.sds.Simulaciones.ejercicio2;
 
 import ar.edu.itba.sds.entities.BillarSimulation;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class inciso3 {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         int N = 100;
 
         double dt = 1e-3;
         double tMax = 50.0;
+
+        //Crea el directorio /2.1 antes de correr xq sino explota si ve q no existe
+        Files.createDirectories(Path.of("2.3"));
 
         //en teoria el observable lo dberias poder calcular con las velocidades
         //que ya te da el archivo output. asi que solo corro esto 15 veces
