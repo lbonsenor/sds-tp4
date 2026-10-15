@@ -11,7 +11,7 @@ public class inciso1b {
     public static void main(String[] args) throws IOException {
         List<Integer> ns = List.of(100, 200, 300, 400, 500, 600, 700, 800, 900);
 
-        double dt = 1e-3;
+        double dt = 1e-5;
         double tMax = 30;
         float obstacleDist = 0.0175f;
 
@@ -22,7 +22,7 @@ public class inciso1b {
             System.out.printf("Iniciando simulación ejercicio 2.1.b N=%d, dt=%.5f\n", n, dt);
             for (int i = 0; i < 10; i++) {
                 BillarSimulation sim = new BillarSimulation(n, obstacleDist, dt, tMax, true);
-                double tiempoEjecucion = sim.execute(0.05, "2.1.b/2.1.b_dt" + dt + "_" + i + ".txt");
+                double tiempoEjecucion = sim.execute(0.05, "2.1.b/2.1.b_dt" + dt + "_N_"+ n +"_" + i + ".txt");
             }
 
         }

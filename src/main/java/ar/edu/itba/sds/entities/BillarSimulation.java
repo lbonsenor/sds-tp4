@@ -36,7 +36,7 @@ public class BillarSimulation {
         this.random = new Random();
 
         if (withObstacles) {
-            this.obstacles = new double[][]{ {-xo, 0.0}, {xo, 0.0} };
+            this.obstacles = new double[][]{ {-this.xo, 0.0}, {this.xo, 0.0} };
         } else {
             this.obstacles = new double[0][0];
         }
