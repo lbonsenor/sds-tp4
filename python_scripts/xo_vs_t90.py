@@ -96,6 +96,7 @@ def graficar_t90(n, directorio="2.2"):
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
+    plt.ylim(0,35)
 
     salida = f't90_vs_distancia_N{n}.png'
     plt.savefig(salida, dpi=300)
@@ -104,7 +105,7 @@ def graficar_t90(n, directorio="2.2"):
 
 if __name__ == '__main__':
     # Puedes cambiar este parámetro a 20 o 100
-    N_PARAMETRO = 20
+    N_PARAMETRO = 100
 
     # Asume que los archivos .txt están en una subcarpeta llamada "2.2"
     # Si están en la misma carpeta que el script, cambia "2.2" por "."
