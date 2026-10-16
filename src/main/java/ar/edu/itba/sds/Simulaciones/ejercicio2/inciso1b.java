@@ -12,7 +12,7 @@ import java.util.List;
 
 public class inciso1b {
     public static void main(String[] args) throws IOException {
-        List<Integer> ns = List.of(100,200,300,400);
+        List<Integer> ns = List.of(100,200,300,400,500,600);
 
         double dt = 5e-4;
         double tMax = 30;
