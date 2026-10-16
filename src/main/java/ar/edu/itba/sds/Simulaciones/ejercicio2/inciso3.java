@@ -11,7 +11,7 @@ public class inciso3 {
     public static void main(String[] args) throws IOException {
         int N = 100;
 
-        double dt = 1e-3;
+        double dt = 5e-4;
         double tMax = 50.0;
 
         //Crea el directorio /2.1 antes de correr xq sino explota si ve q no existe
@@ -23,7 +23,7 @@ public class inciso3 {
         for (int i = 0; i < 15; i++) {
             System.out.printf("Iniciando simulación ejercicio 2.3 N=100, dt=%.5f\n", dt);
             BillarSimulation sim = new BillarSimulation(N, 0, dt, tMax, false);
-            double tiempoEjecucion = sim.execute(0.05, "2.3/2.3_dt" + dt+".txt");
+            double tiempoEjecucion = sim.execute(0.05, "2.3/2.3_dt" + dt+ "_iter_"+ i + ".txt");
         }
     }
 
