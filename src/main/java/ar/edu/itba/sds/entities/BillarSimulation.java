@@ -47,52 +47,56 @@ public class BillarSimulation {
 
     private void initParticles() {
         particles.clear();
+        List<double[]> validPositions = new ArrayList<>();
 
-        for (int i = 0; i < nPart; i++) {
-            boolean posValida = false;
-            double x = 0, y = 0;
+        // Creamos una grilla hexagonal de posiciones candidatas
+        double eps = 1e-5; // Pequeño margen para evitar roces flotantes
+        double diam = 2 * R_PART + eps;
+        double dy = diam * Math.sqrt(3) / 2.0;
 
-            while (!posValida) {
-                // Posición uniforme dentro del dominio circular de radio (R - r)
-                double rRand = (R_DOMAIN - R_PART) * Math.sqrt(random.nextDouble());
-                double thetaRand = random.nextDouble() * 2 * Math.PI;
-                x = rRand * Math.cos(thetaRand);
-                y = rRand * Math.sin(thetaRand);
+        int row = 0;
+        for (double y = -R_DOMAIN; y <= R_DOMAIN; y += dy) {
+            double xOffset = (row % 2 == 0) ? 0 : (diam / 2.0);
+            for (double x = -R_DOMAIN + xOffset; x <= R_DOMAIN; x += diam) {
 
-                posValida = true;
-
-                // 1. Solapamiento con la pared
+                // 1. Verificación con la pared exterior
                 if (Math.hypot(x, y) > (R_DOMAIN - R_PART)) {
-                    posValida = false;
                     continue;
                 }
 
-                // 2. Solapamiento con obstáculos
+                // 2. Verificación con obstáculos
+                boolean overlapObs = false;
                 if (withObstacles) {
                     for (double[] obs : obstacles) {
                         if (Math.hypot(x - obs[0], y - obs[1]) < (2 * R_PART)) {
-                            posValida = false;
+                            overlapObs = true;
                             break;
                         }
                     }
-                    if (!posValida) continue;
                 }
+                if (overlapObs) continue;
 
-                // 3. Solapamiento con otras partículas ya posicionadas
-                for (Particle p : particles) {
-                    if (Math.hypot(x - p.getX(), y - p.getY()) < (2 * R_PART)) {
-                        posValida = false;
-                        break;
-                    }
-                }
+                validPositions.add(new double[]{x, y});
             }
+            row++;
+        }
 
-            // Velocidad inicial v0 con dirección uniforme [0, 2pi)
+        // Validar si es físicamente posible meter la cantidad pedida
+        if (nPart > validPositions.size()) {
+            throw new RuntimeException("Límite físico excedido: Imposible colocar " + nPart +
+                    " partículas. El máximo teórico en esta grilla es " + validPositions.size());
+        }
+
+        // Mezclar las posiciones válidas y tomar N al azar
+        java.util.Collections.shuffle(validPositions, random);
+
+        for (int i = 0; i < nPart; i++) {
+            double[] pos = validPositions.get(i);
             double angle = random.nextDouble() * 2 * Math.PI;
             double vx = V0 * Math.cos(angle);
             double vy = V0 * Math.sin(angle);
 
-            particles.add(new Particle(x,y, vx, vy,M,R_PART));
+            particles.add(new Particle(pos[0], pos[1], vx, vy, M, R_PART));
         }
     }
 
