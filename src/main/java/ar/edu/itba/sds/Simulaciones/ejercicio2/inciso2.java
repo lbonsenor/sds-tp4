@@ -12,10 +12,10 @@ public class inciso2 {
         int n = 100;
         int n2 = 20;
 
-        double dt = 1e-5;
+        double dt = 5e-4;
         double tMax = 100;
         //0.4925 es R - r la maxima distancia posible
-        List<Float> obstacleDists = List.of(0.0175f, 0.035f, 0.07f, 0.14f, 0.28f,0.4925f);
+        List<Float> obstacleDists = List.of(0.0175f, 0.035f, 0.1f, 0.2f, 0.3f,0.4f,0.4925f);
 
         //Crea el directorio /2.2 antes de correr xq sino explota si ve q no existe
         Files.createDirectories(Path.of("2.2"));
