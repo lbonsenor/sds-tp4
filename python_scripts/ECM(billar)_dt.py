@@ -113,25 +113,28 @@ if dts:
 
     plt.figure(figsize=(7, 5))
     plt.loglog(dts, ecms, 'o-', color='navy', linewidth=2, markersize=7)
-    
-    for dt_val, ecm_val in zip(dts, ecms):
+    plt.tick_params(axis='x', labelbottom=False)
+    for dt_val in dts:
         label = f"{dt_val:g}" if dt_val >= 1e-3 else f"{dt_val:.1e}"
+
         plt.annotate(
             label,
-            (dt_val, ecm_val),
-            textcoords="offset points",
-            xytext=(0, 8),
+            (dt_val, 0),
+            xycoords=('data', 'axes fraction'),
+            xytext=(0, -8),
+            textcoords='offset points',
             ha='center',
+            va='top',
             fontsize=9,
             color='darkblue'
         )
 
-    plt.xlabel(r"$dt \text{ (s)}$", fontsize=12)
-    plt.ylabel(r"$\text{ECM de Etot (J}^2\text{)}$", fontsize=12)
+    plt.xlabel(r"$dt \text{ (s)}$", fontsize=12, labelpad=20)
+    plt.ylabel(r"$\text{ECM de } E_{\text{tot}} \text{ (J}^2\text{)}$", fontsize=12)
     plt.grid(True, which="both", ls="--", alpha=0.6)
 
     plt.tight_layout()
-    salida = os.path.join(script_dir, "ecm_vs_dt.png")
+    salida = os.path.join(script_dir, "ecm(billar)_vs_dt.png")
     plt.savefig(salida, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"Gráfico generado con éxito: {salida}")
