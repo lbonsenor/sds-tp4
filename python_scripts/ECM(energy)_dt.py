@@ -11,7 +11,7 @@ K = 1e4
 DIAMETER = 2 * R_PART
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-DIRECTORY = os.path.abspath(os.path.join(script_dir,"2.1.a"))
+DIRECTORY = os.path.abspath(os.path.join(script_dir, "..", "2.1.a"))
 
 dts = []
 ecms = []
