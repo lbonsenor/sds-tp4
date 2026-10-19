@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 public class BilliardsExp {
@@ -85,7 +86,9 @@ public class BilliardsExp {
         for (int i = 0; i < nPart; i++) {
             double[] pos = validPositions.get(i);
             double angle = random.nextDouble() * 2 * Math.PI;
-            particles.add(new Particle(pos[0], pos[1], V0 * Math.cos(angle), V0 * Math.sin(angle), M, R_PART));
+            // id = i: los ids van de 0 a N-1 en cada simulación (sin contador estático global)
+            particles.add(new Particle(i, pos[0], pos[1],
+                    V0 * Math.cos(angle), V0 * Math.sin(angle), false, M, R_PART));
         }
     }
 
@@ -134,7 +137,7 @@ public class BilliardsExp {
                 }
             }
 
-            // C) Partícula - Pared
+            // C) Partícula - Pared (partícula imagen)
             double distCentro2 = xi * xi + yi * yi;
             double rWall = R_DOMAIN - R_PART;
             if (distCentro2 > rWall * rWall) {
@@ -173,15 +176,17 @@ public class BilliardsExp {
 
     public double execute(double dtOut, String outFile) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFile))) {
-            double t = 0.0;
-            long steps = 0;
             int nGuardado = Math.max(1, (int) Math.round(dtOut / dt));
+            long nSteps = Math.round(tMax / dt);   // se simula hasta t = tMax inclusive
             double dt2 = dt * dt;
             double dtX2 = 2.0 * dt;
 
+            double[][] posNext = new double[nPart][2];
+
             long tInicio = System.currentTimeMillis();
 
-            while (t <= tMax) {
+            for (long steps = 0; steps <= nSteps; steps++) {
+                double t = steps * dt;
                 double[][] posActuales = obtainMatrixPos();
 
                 if (withObstacles) {
@@ -199,31 +204,33 @@ public class BilliardsExp {
                     }
                 }
 
+                // Verlet: x(t+dt) y v(t) = (x(t+dt) - x(t-dt)) / (2 dt)
+                double[][] fuerzas = calculateForce(posActuales);
+                for (int i = 0; i < nPart; i++) {
+                    Particle p = particles.get(i);
+                    posNext[i][0] = 2.0 * p.getX() - p.getXPrev() + (fuerzas[i][0] / M) * dt2;
+                    posNext[i][1] = 2.0 * p.getY() - p.getYPrev() + (fuerzas[i][1] / M) * dt2;
+                    p.setVx((posNext[i][0] - p.getXPrev()) / dtX2);   // v(t)
+                    p.setVy((posNext[i][1] - p.getYPrev()) / dtX2);
+                }
+
+                // Output: x(t) (todavía sin avanzar) junto con v(t) (ya calculada)
                 if (steps % nGuardado == 0) {
-                    writer.write(String.format("%.4f\n", t));
+                    writer.write(String.format(Locale.US, "%.4f\n", t));
                     for (Particle p : particles) {
-                        writer.write(String.format("%d %.6f %.6f %.6f %.6f %d\n",
+                        writer.write(String.format(Locale.US, "%d %.6f %.6f %.6f %.6f %d\n",
                                 p.getId(), p.getX(), p.getY(), p.getVx(), p.getVy(), p.isUsed() ? 1 : 0));
                     }
                 }
 
-                double[][] fuerzas = calculateForce(posActuales);
-
+                // Avanzar posiciones
                 for (int i = 0; i < nPart; i++) {
                     Particle p = particles.get(i);
-                    double xNext = 2.0 * p.getX() - p.getXPrev() + (fuerzas[i][0] / M) * dt2;
-                    double yNext = 2.0 * p.getY() - p.getYPrev() + (fuerzas[i][1] / M) * dt2;
-
-                    p.setVx((xNext - p.getXPrev()) / dtX2);
-                    p.setVy((yNext - p.getYPrev()) / dtX2);
                     p.setXPrev(p.getX());
                     p.setYPrev(p.getY());
-                    p.setX(xNext);
-                    p.setY(yNext);
+                    p.setX(posNext[i][0]);
+                    p.setY(posNext[i][1]);
                 }
-
-                t += dt;
-                steps++;
             }
             return (System.currentTimeMillis() - tInicio) / 1000.0;
         } catch (IOException e) {

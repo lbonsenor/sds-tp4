@@ -4,21 +4,18 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Constantes físicas del sistema (TP4 - Sistema 2)
 R_DOMAIN = 0.51
 R_PART = 0.0175
 M = 0.025
 K = 1e4
 DIAMETER = 2 * R_PART
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# Directorio donde se encuentran los outputs primarios de trayectorias (ej. carpeta 2.1.a)
-DIRECTORY = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "2.1.a"))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+DIRECTORY = os.path.abspath(os.path.join(script_dir,"2.1.a"))
 
 dts = []
 ecms = []
 
-# Buscar los archivos de trayectorias generados por Java (ej. 2.1.a_dt*.txt)
 search_path = os.path.join(DIRECTORY, "*_dt*.txt")
 files = glob.glob(search_path)
 
@@ -27,8 +24,6 @@ if not files:
 else:
     for file_path in files:
         filename = os.path.basename(file_path)
-
-        # Extraer el valor de dt usando Expresiones Regulares del nombre del archivo de trayectorias
         match = re.search(r"dt([0-9\.eE\-]+)\.txt$", filename)
         if match:
             dt_val = float(match.group(1))
@@ -36,7 +31,6 @@ else:
             continue
 
         try:
-            # Leer el archivo de trayectorias estructurado por fotogramas
             with open(file_path, 'r') as f:
                 lines = f.readlines()
 
@@ -50,7 +44,6 @@ else:
                     i += 1
                     continue
                 
-                # Cada bloque de fotograma comienza con el tiempo t (línea individual)
                 try:
                     t = float(line)
                 except ValueError:
@@ -61,8 +54,6 @@ else:
                 positions = []
                 velocities = []
                 
-                # Las líneas subsiguientes corresponden a las partículas del fotograma
-                # Formato en Java: id x y vx vy color
                 while i < len(lines) and len(lines[i].split()) == 6:
                     parts = lines[i].split()
                     x, y = float(parts[1]), float(parts[2])
@@ -78,16 +69,11 @@ else:
                 velocities = np.array(velocities)
                 n = len(positions)
 
-                # --- POSTPROCESAMIENTO DE OBSERVABLES (Energía en el fotograma) ---
-                # 1. Energía Cinética
                 ek = 0.5 * M * np.sum(velocities**2)
-                
-                # 2. Energía Potencial (Partícula - Partícula y Partícula - Pared)
                 ep = 0.0
                 for p_idx in range(n):
                     xi, yi = positions[p_idx]
                     
-                    # Interacción con otras partículas
                     for j in range(p_idx + 1, n):
                         dx = positions[j][0] - xi
                         dy = positions[j][1] - yi
@@ -98,7 +84,6 @@ else:
                             if xi_ij > 0:
                                 ep += 0.5 * K * (xi_ij ** 2)
                     
-                    # Interacción con la pared (Partícula Imagen)
                     dist_centro2 = xi * xi + yi * yi
                     r_wall = R_DOMAIN - R_PART
                     if dist_centro2 > r_wall * r_wall:
@@ -113,9 +98,7 @@ else:
 
             if e_tot_list:
                 e_tot_arr = np.array(e_tot_list)
-                E0 = e_tot_arr[0] # Energía total inicial de referencia
-                
-                # Calcular el Error Cuadrático Medio (ECM) de la energía total respecto a E0
+                E0 = e_tot_arr[0]
                 ecm = np.mean((e_tot_arr - E0) ** 2)
 
                 dts.append(dt_val)
@@ -125,11 +108,9 @@ else:
         except Exception as e:
             print(f"Error procesando {filename}: {e}")
 
-# Ordenar por dt ascendente para graficar correctamente
 if dts:
     dts, ecms = zip(*sorted(zip(dts, ecms)))
 
-    # Graficar ECM vs dt en escala logarítmica
     plt.figure(figsize=(7, 5))
     plt.loglog(dts, ecms, 'o-', color='navy', linewidth=2, markersize=7)
     
@@ -150,6 +131,7 @@ if dts:
     plt.grid(True, which="both", ls="--", alpha=0.6)
 
     plt.tight_layout()
-    plt.savefig("ecm_vs_dt.png", dpi=300, bbox_inches="tight")
+    salida = os.path.join(script_dir, "ecm_vs_dt.png")
+    plt.savefig(salida, dpi=300, bbox_inches="tight")
     plt.close()
-    print("Gráfico generado con éxito: ecm_vs_dt.png")
+    print(f"Gráfico generado con éxito: {salida}")

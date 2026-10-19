@@ -15,7 +15,7 @@ public class inciso1b {
         List<Integer> ns = List.of(100,200,300,400,500,600);
 
         double dt = 5e-4;
-        double tMax = 30;
+        double tMax = 150;
         float obstacleDist = 0.0175f;
         List<Double> executionTimes = new ArrayList<>();
 

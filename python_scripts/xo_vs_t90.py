@@ -6,10 +6,6 @@ import matplotlib.pyplot as plt
 
 
 def calcular_t90_archivo(filepath, n):
-    """
-    Lee un archivo de simulación y devuelve el instante t90
-    donde el 90% de las partículas tienen color 1.
-    """
     target_usadas = int(n * 0.9)
     current_time = 0.0
 
@@ -20,35 +16,28 @@ def calcular_t90_archivo(filepath, n):
             if not parts:
                 continue
 
-            # Si la línea tiene 1 solo elemento, es la cabecera del tiempo (ej: 0.1000)
             if len(parts) == 1:
-                # Si en el bloque anterior ya llegamos al 90%, devolvemos el tiempo de ese bloque
                 if usadas_en_bloque >= target_usadas:
                     return current_time
 
                 current_time = float(parts[0])
-                usadas_en_bloque = 0  # Reiniciamos el contador para el nuevo bloque
+                usadas_en_bloque = 0
 
-            # Si la línea tiene 6 elementos, es una partícula: id x y vx vy color
             elif len(parts) == 6:
                 color = int(parts[5])
                 if color == 1:
                     usadas_en_bloque += 1
 
-        # Revisar el último bloque en caso de que termine allí
         if usadas_en_bloque >= target_usadas:
             return current_time
 
-    # Si nunca llega al 90%, retornamos None o el tiempo máximo
     return None
 
 
-def graficar_t90(n, directorio="2.2"):
-    """
-    Busca los archivos para un N dado, calcula el t90 promedio y grafica.
-    """
-    # Expresión regular para extraer la distancia del nombre del archivo
-    # Ej: 2.2_N100_dt5.0E-4_obstD_0.035_iter_0.txt
+def graficar_t90(n, subdirectorio="2.2"):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    directorio = os.path.abspath(os.path.join(script_dir, "..", subdirectorio))
+
     patron = re.compile(rf".*_N{n}_.*_obstD_([0-9.]+)_iter_.*\.txt")
 
     archivos = glob.glob(os.path.join(directorio, f"*_N{n}_*.txt"))
@@ -56,7 +45,6 @@ def graficar_t90(n, directorio="2.2"):
         print(f"No se encontraron archivos para N={n} en el directorio '{directorio}'.")
         return
 
-    # Diccionario para agrupar los t90 por distancia: { distancia: [t90_iter0, t90_iter1, ...] }
     datos_t90 = {}
 
     for filepath in archivos:
@@ -71,10 +59,9 @@ def graficar_t90(n, directorio="2.2"):
                 datos_t90[dist].append(t90)
 
     if not datos_t90:
-        print("No se pudo calcular t90 para los archivos encontrados (ninguno llegó al 90%).")
+        print("No se pudo calcular t90 para los archivos encontrados.")
         return
 
-    # Procesar los datos para el gráfico
     distancias = sorted(datos_t90.keys())
     t90_means = []
     t90_stds = []
@@ -84,7 +71,6 @@ def graficar_t90(n, directorio="2.2"):
         t90_means.append(np.mean(tiempos))
         t90_stds.append(np.std(tiempos))
 
-    # Generar el Gráfico
     plt.figure(figsize=(10, 6))
     plt.errorbar(distancias, t90_means, yerr=t90_stds, fmt='-o',
                  capsize=5, color='teal', markersize=8, linewidth=2,
@@ -96,17 +82,13 @@ def graficar_t90(n, directorio="2.2"):
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
-    plt.ylim(0,35)
+    plt.ylim(0, 35)
 
-    salida = f't90_vs_distancia_N{n}.png'
+    salida = os.path.join(script_dir, f't90_vs_distancia_N{n}.png')
     plt.savefig(salida, dpi=300)
     print(f"Gráfico generado exitosamente: {salida}")
 
 
 if __name__ == '__main__':
-    # Puedes cambiar este parámetro a 20 o 100
     N_PARAMETRO = 100
-
-    # Asume que los archivos .txt están en una subcarpeta llamada "2.2"
-    # Si están en la misma carpeta que el script, cambia "2.2" por "."
-    graficar_t90(N_PARAMETRO, directorio="2.2")
+    graficar_t90(N_PARAMETRO, subdirectorio="2.2")
