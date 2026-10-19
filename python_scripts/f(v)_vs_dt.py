@@ -74,7 +74,7 @@ bin_centers = 0.5 * (bins[:-1] + bins[1:])
 bin_width = bins[1] - bins[0]
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-tiempos_objetivo = [0.0, 0.05, 0.15, 0.50, 1.0, 5.0]
+tiempos_objetivo = [0.0, 0.05, 0.15, 0.30,0.50, 1.0, 5.0]
 
 def buscar_tiempo_cercano(t_deseado, lista_tiempos):
     return min(lista_tiempos, key=lambda t: abs(t - t_deseado))
@@ -84,11 +84,11 @@ tiempos_a_mostrar = [buscar_tiempo_cercano(t, tiempos_disponibles) for t in tiem
 for t in tiempos_a_mostrar:
     vels = todas_las_corridas[t]
     hist, _ = np.histogram(vels, bins=bins, density=True)
-    ax1.plot(bin_centers, hist, label=f"$t = {t:.1f}$ s", linewidth=1.8)
+    ax1.plot(bin_centers, hist, label=f"$t = {t:.2f}$ s", linewidth=1.8)
 
-ax1.set_xlabel("Velocidad $v$ (m/s)", fontsize=11)
-ax1.set_ylabel("Densidad de probabilidad $f(v)$", fontsize=11)
-ax1.set_title("Evolución temporal de $f(v)$", fontsize=12, fontweight='bold')
+ax1.set_xlabel("$v$ (m/s)", fontsize=11)
+ax1.set_ylabel("$f(v)$", fontsize=11)
+# ax1.set_title("Evolución temporal de $f(v)$", fontsize=12, fontweight='bold')
 ax1.grid(True, linestyle="--", alpha=0.6)
 ax1.legend()
 
@@ -111,9 +111,9 @@ ax2.bar(bin_centers, f_estacionario, width=bin_width, alpha=0.5, color='gray',
 ax2.plot(v_smooth, maxwell_boltzmann_2d(v_smooth, kbT_ajustado), 'r-', linewidth=2.5,
          label=f"Ajuste M-B 2D\n($k_B T = {kbT_ajustado:.5f}$ J)")
 
-ax2.set_xlabel("Velocidad $v$ (m/s)", fontsize=11)
-ax2.set_ylabel("Densidad de probabilidad $f(v)$", fontsize=11)
-ax2.set_title("Ajuste de Maxwell-Boltzmann (Estado Estacionario)", fontsize=12, fontweight='bold')
+ax2.set_xlabel("$v$ (m/s)", fontsize=11)
+ax2.set_ylabel("$f(v)$", fontsize=11)
+# ax2.set_title("Ajuste de Maxwell-Boltzmann (Estado Estacionario)", fontsize=12, fontweight='bold')
 ax2.grid(True, linestyle="--", alpha=0.6)
 ax2.legend()
 
