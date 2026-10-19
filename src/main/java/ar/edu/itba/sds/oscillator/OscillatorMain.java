@@ -18,7 +18,7 @@ import java.util.List;
 public class OscillatorMain extends BaseConfig {
 
     @Option(names = {"--dts"}, split = ",", description = "Pasos temporales dt a evaluar")
-    private List<Double> dts = List.of(1e-2, 5e-3, 1e-3, 5e-4, 1e-4, 5e-5, 1e-5);
+    private List<Double> dts = List.of(1e-2, 5e-3, 1e-3, 5e-4, 1e-4, 5e-5);
 
     @Option(names = {"-o", "--output-dir"}, description = "Directorio de salida para CSVs")
     private File outputDir = new File("telemetry/oscillator");
