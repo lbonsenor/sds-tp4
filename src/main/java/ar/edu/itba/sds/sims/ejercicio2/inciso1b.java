@@ -1,6 +1,6 @@
-package ar.edu.itba.sds.Simulaciones.ejercicio2;
+package ar.edu.itba.sds.sims.ejercicio2;
 
-import ar.edu.itba.sds.entities.BillarSimulation;
+import ar.edu.itba.sds.entities.BilliardsExp;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -32,7 +32,7 @@ public class inciso1b {
 
             for (int i = 0; i < 10; i++) {
                 System.out.printf("Iniciando simulación ejercicio 2.1.b N=%d, dt=%.5f, i=%d\n", n, dt, i);
-                BillarSimulation sim = new BillarSimulation(n, obstacleDist, dt, tMax, true);
+                BilliardsExp sim = new BilliardsExp(n, obstacleDist, dt, tMax, true);
                 double tiempoEjecucion = sim.execute(0.05, "2.1.b/2.1.b_dt" + dt + "_N_"+ n +"_" + i + ".txt");
                 writer.write(n + " " + i + " " + tiempoEjecucion + "\n");
             }

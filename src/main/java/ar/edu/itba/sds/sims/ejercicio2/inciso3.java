@@ -1,11 +1,10 @@
-package ar.edu.itba.sds.Simulaciones.ejercicio2;
+package ar.edu.itba.sds.sims.ejercicio2;
 
-import ar.edu.itba.sds.entities.BillarSimulation;
+import ar.edu.itba.sds.entities.BilliardsExp;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 public class inciso3 {
     public static void main(String[] args) throws IOException {
@@ -22,7 +21,7 @@ public class inciso3 {
         //el tf lo podes variar pero no se cuando se llega al estacionario asi que puse 50 a priori
         for (int i = 0; i < 15; i++) {
             System.out.printf("Iniciando simulación ejercicio 2.3 N=100, dt=%.5f\n", dt);
-            BillarSimulation sim = new BillarSimulation(N, 0, dt, tMax, false);
+            BilliardsExp sim = new BilliardsExp(N, 0, dt, tMax, false);
             double tiempoEjecucion = sim.execute(0.05, "2.3/2.3_dt" + dt+ "_iter_"+ i + ".txt");
         }
     }

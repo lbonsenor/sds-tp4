@@ -1,6 +1,6 @@
-package ar.edu.itba.sds.Simulaciones.ejercicio2;
+package ar.edu.itba.sds.sims.ejercicio2;
 
-import ar.edu.itba.sds.entities.BillarSimulation;
+import ar.edu.itba.sds.entities.BilliardsExp;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +23,7 @@ public class inciso2 {
         for (Float dist : obstacleDists) {
             System.out.printf("Iniciando simulación ejercicio 2.2 N=%d, dist=%.4f\n", n2, dist);
             for (int i = 0; i < 5; i++) {
-                BillarSimulation sim = new BillarSimulation(n2, dist, dt, tMax, true);
+                BilliardsExp sim = new BilliardsExp(n2, dist, dt, tMax, true);
                 double tiempoEjecucion = sim.execute(0.1, "2.2/2.2_N20_dt" + dt + "_obstD_"+dist +"_iter_" + i + ".txt");
             }
 
@@ -32,7 +32,7 @@ public class inciso2 {
         for (Float dist : obstacleDists) {
             System.out.printf("Iniciando simulación ejercicio 2.2 N=%d, dist=%.4f\n", n, dist);
             for (int i = 0; i < 5; i++) {
-                BillarSimulation sim = new BillarSimulation(n, dist, dt, tMax, true);
+                BilliardsExp sim = new BilliardsExp(n, dist, dt, tMax, true);
                 double tiempoEjecucion = sim.execute(0.1, "2.2/2.2_N100_dt" + dt + "_obstD_"+dist +"_iter_" + i + ".txt");
             }
 

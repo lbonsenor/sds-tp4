@@ -1,6 +1,6 @@
-package ar.edu.itba.sds.Simulaciones.ejercicio2;
+package ar.edu.itba.sds.sims.ejercicio2;
 
-import ar.edu.itba.sds.entities.BillarSimulation;
+import ar.edu.itba.sds.entities.BilliardsExp;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,8 +26,8 @@ public class inciso1a {
         //TODO el enunciado no especifica pero capaz deberiamos correr 5 o 10 veces cada dt y promediar?
         for (Double dt : dts) {
             System.out.printf("Iniciando simulación ejercicio 2.1.a N=300, dt=%.5f\n", dt);
-            BillarSimulation sim = new BillarSimulation(N, 0, dt, tMax, false);
-            double tiempoEjecucion = sim.execute(0.05, "2.1.a/2.1.a_dt" + dt+".txt", "2.1.a/2.1.a_energy_dt" + dt+".txt");
+            BilliardsExp sim = new BilliardsExp(N, 0, dt, tMax, false);
+            double tiempoEjecucion = sim.execute(0.05, "2.1.a/2.1.a_dt" + dt+".txt");
         }
     }
 }

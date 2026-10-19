@@ -1,4 +1,4 @@
-package ar.edu.itba.sds.Utils;
+package ar.edu.itba.sds.utils;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
