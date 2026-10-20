@@ -10,7 +10,7 @@ public class inciso3 {
     public static void main(String[] args) throws IOException {
         int N = 100;
 
-        double dt = 5e-4;
+        double dt = 1e-4;
         double tMax = 50.0;
 
         //Crea el directorio /2.1 antes de correr xq sino explota si ve q no existe
