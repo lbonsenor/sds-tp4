@@ -14,7 +14,7 @@ public class inciso1a {
         // El enunciado pide explicitamente que tienen que estar en cierto rango los dts. 1e-2 No es valido.
         // por cuestiones de física... con dt 1e-2 5e-3 explota la energía.
         List<Double> dts = List.of(  1e-3, 5e-4, 1e-4, 5e-5, 1e-5);
-        double tMax = 10.0;
+        double tMax = 30.0;
         //aca la idea es que la energia se tiene que conservar. cuando hagas el grafico de energia vs dt
         //fijate el dt mas grande que veas q conserva la energia del sistema. elegis ese y lo usas
         //para los otros ejercicios. yo voy a usar 10^-3 a priori

@@ -12,10 +12,10 @@ import java.util.List;
 
 public class inciso1b {
     public static void main(String[] args) throws IOException {
-        List<Integer> ns = List.of(100,200,300,400,500,600);
+        List<Integer> ns = List.of(100,200,300,400,500,600,650);
 
         double dt = 1e-4;
-        double tMax = 150;
+        double tMax = 30;
         float obstacleDist = 0.0175f;
         List<Double> executionTimes = new ArrayList<>();
 
